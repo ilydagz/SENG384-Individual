@@ -60,6 +60,7 @@ Base URL: `http://localhost:5000/api`
 1. Registration(Create) Form Page
 ![Registration(Create) Form Page](./screenshots/form.png)
 2. List(Read) Page
+![List Page](./screenshots/list0.png)
 ![List(Read) Page](./screenshots/list.png)
 3. Dashboard
 ![Dashboard](./screenshots/dashboard.png)
@@ -70,6 +71,6 @@ Base URL: `http://localhost:5000/api`
 6. Settings
 ![Settings](./screenshots/settings.png)
 7. Notifications
-![Notifications](./screenshots/notifications.png)
+![Notifications](./screenshots/notification.png)
 8. User Guide
 ![User Guide](./screenshots/userguide.png) 
