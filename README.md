@@ -28,8 +28,8 @@ Beyond the core CRUD operations, this project includes several advanced UI/UX fe
 ### Installation & Execution
 1. Clone the repository:
    ```bash
-   git clone <YOUR_GITHUB_REPO_LINK_HERE>
-   cd <YOUR_PROJECT_FOLDER_NAME> 
+   git clone https://github.com/ilydagz/SENG384-Individual.git
+   cd SENG384-Individual 
    ```
 2. Start the application:
    ```bash
@@ -57,11 +57,19 @@ Base URL: `http://localhost:5000/api`
 | **PUT** | `/people/:id` | **Update** | Updates the details of an existing personnel record. | 200 (OK), 400 (Bad Request), 404 (Not Found) |
 | **DELETE** | `/people/:id` | **Delete** | Removes a personnel record from the database. | 200 (OK), 404 (Not Found) |
 
+1. Registration(Create) Form Page
 ![Registration(Create) Form Page](./screenshots/form.png)
+2. List(Read) Page
 ![List(Read) Page](./screenshots/list.png)
+3. Dashboard
 ![Dashboard](./screenshots/dashboard.png)
+4. Edit(Update) Page
 ![Edit(Update) Page](./screenshots/edit.png)
+5. Delete Page
 ![Delete Page](./screenshots/delete.png)
+6. Settings
 ![Settings](./screenshots/settings.png)
+7. Notifications
 ![Notifications](./screenshots/notifications.png)
+8. User Guide
 ![User Guide](./screenshots/userguide.png) 
