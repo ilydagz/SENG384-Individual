@@ -1,10 +1,19 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Users, UserPlus, Droplet, Activity, ArrowRight, ShieldCheck, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-
 export default function DashboardHome() {
-    // SU DAMLASI ANİMASYONU: "Tık tık tık" ritmik düşüş
+    const [totalPeople, setTotalPeople] = useState(0);
+
+    // Veritabanından gerçek kişi sayısını çek
+    useEffect(() => {
+        fetch('http://localhost:5000/api/people')
+            .then(res => res.json())
+            .then(data => setTotalPeople(data.length))
+            .catch(err => console.error("Data fetch error", err));
+    }, []);
+
     const waterContainer = {
         hidden: { opacity: 0 },
         show: {
@@ -13,7 +22,6 @@ export default function DashboardHome() {
         }
     };
 
-    // Yukarıdan hafifçe düşüp yayılan damla fiziği
     const waterDrop = {
         hidden: { opacity: 0, y: -15, scale: 0.95 },
         show: {
@@ -54,12 +62,12 @@ export default function DashboardHome() {
                 </div>
             </motion.div>
 
-            {/* İstatistik Damlaları (Kartlar) - Sadece mavinin uyumlu tonları */}
+            {/* İstatistik Damlaları (Kartlar) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                 {[
-                    { title: "Total Personnel", value: "1,248", icon: Users, color: "from-blue-500 to-blue-400" },
-                    { title: "Active Flow", value: "842", icon: Activity, color: "from-sky-500 to-sky-400" },
-                    { title: "Growth Wave", value: "+12.5%", icon: TrendingUp, color: "from-blue-400 to-sky-300" }
+                    { title: "Total Personnel", value: totalPeople, icon: Users, color: "from-blue-500 to-blue-400" },
+                    { title: "Active Flow", value: totalPeople > 0 ? totalPeople - 1 : 0, icon: Activity, color: "from-sky-500 to-sky-400" },
+                    { title: "System Health", value: "100%", icon: TrendingUp, color: "from-blue-400 to-sky-300" }
                 ].map((stat, index) => (
                     <motion.div
                         key={index} variants={waterDrop}
@@ -67,7 +75,6 @@ export default function DashboardHome() {
                         transition={{ duration: 0.4, type: "spring" }}
                         className="bg-white/70 backdrop-blur-2xl border border-white rounded-[2rem] p-7 shadow-lg shadow-sky-100/50 relative overflow-hidden group cursor-default"
                     >
-                        {/* Kart içi su dalgası parlaması */}
                         <div className="absolute inset-0 bg-gradient-to-br from-sky-100/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
                         <div className="flex justify-between items-start relative z-10">
@@ -96,7 +103,6 @@ export default function DashboardHome() {
                     </div>
                 </div>
 
-                {/* Su dalgası efekti taşıyan görsel alan */}
                 <div className="bg-gradient-to-br from-[#f2f8fc] to-[#e6f2f9] border border-white rounded-[2rem] p-8 shadow-inner relative overflow-hidden flex items-center justify-center min-h-[160px]">
                     <motion.div
                         animate={{ opacity: [0.4, 0.7, 0.4], scale: [0.9, 1.1, 0.9] }}
@@ -109,7 +115,6 @@ export default function DashboardHome() {
                     </div>
                 </div>
             </motion.div>
-
         </motion.div>
     );
 }

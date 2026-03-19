@@ -1,27 +1,61 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Edit2, Trash2, Users, AlertTriangle, X, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function PeopleList() {
-    const [people, setPeople] = useState([
-        { id: 1, fullName: "John Doe", email: "john@example.com", role: "Developer" },
-        { id: 2, fullName: "Jane Smith", email: "jane@example.com", role: "Designer" },
-        { id: 3, fullName: "Mike Johnson", email: "mike@example.com", role: "Manager" },
-    ]);
-
+export default function PeopleList({ addNotification, searchQuery = "" }) {
+    const [people, setPeople] = useState([]);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [selectedPerson, setSelectedPerson] = useState(null);
+
+    const fetchPeople = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/api/people');
+            const data = await response.json();
+
+            const formattedData = data.map(person => ({
+                id: person.id,
+                fullName: person.full_name,
+                email: person.email,
+                role: "User"
+            }));
+
+            setPeople(formattedData);
+        } catch (error) {
+            console.error("Error fetching people:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchPeople();
+    }, []);
+
+    // Arama çubuğu (Search) filtresi
+    const filteredPeople = people.filter(person =>
+        person.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        person.email.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     const openDeleteModal = (person) => {
         setSelectedPerson(person);
         setDeleteModalOpen(true);
     };
 
-    const confirmDelete = () => {
-        setPeople(people.filter(p => p.id !== selectedPerson.id));
-        setDeleteModalOpen(false);
-        setSelectedPerson(null);
+    const confirmDelete = async () => {
+        try {
+            const response = await fetch(`http://localhost:5000/api/people/${selectedPerson.id}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                setPeople(people.filter(p => p.id !== selectedPerson.id));
+                if (addNotification) addNotification(`${selectedPerson.fullName} was deleted from the directory.`);
+                setDeleteModalOpen(false);
+                setSelectedPerson(null);
+            }
+        } catch (error) {
+            console.error("Error deleting person:", error);
+        }
     };
 
     const openEditModal = (person) => {
@@ -29,11 +63,27 @@ export default function PeopleList() {
         setEditModalOpen(true);
     };
 
-    const handleEditSubmit = (e) => {
+    const handleEditSubmit = async (e) => {
         e.preventDefault();
-        setPeople(people.map(p => p.id === selectedPerson.id ? selectedPerson : p));
-        setEditModalOpen(false);
-        setSelectedPerson(null);
+        try {
+            const response = await fetch(`http://localhost:5000/api/people/${selectedPerson.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fullName: selectedPerson.fullName,
+                    email: selectedPerson.email
+                })
+            });
+
+            if (response.ok) {
+                setPeople(people.map(p => p.id === selectedPerson.id ? selectedPerson : p));
+                if (addNotification) addNotification(`Records for ${selectedPerson.fullName} were updated.`);
+                setEditModalOpen(false);
+                setSelectedPerson(null);
+            }
+        } catch (error) {
+            console.error("Error updating person:", error);
+        }
     };
 
     return (
@@ -67,7 +117,7 @@ export default function PeopleList() {
                             </tr>
                         </thead>
                         <motion.tbody initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.05 } } }}>
-                            {people.map((person) => (
+                            {filteredPeople.map((person) => (
                                 <motion.tr
                                     key={person.id}
                                     variants={{ hidden: { opacity: 0, x: -20 }, show: { opacity: 1, x: 0 } }}
@@ -88,9 +138,9 @@ export default function PeopleList() {
                                     </td>
                                 </motion.tr>
                             ))}
-                            {people.length === 0 && (
+                            {filteredPeople.length === 0 && (
                                 <tr>
-                                    <td colSpan="4" className="py-8 text-center text-slate-400 font-medium">No personnel found in the directory.</td>
+                                    <td colSpan="4" className="py-8 text-center text-slate-400 font-medium">No personnel found matching your search.</td>
                                 </tr>
                             )}
                         </motion.tbody>
@@ -98,7 +148,7 @@ export default function PeopleList() {
                 </div>
             </motion.div>
 
-            {/* --- SİLME ONAY MODALI --- */}
+            {/* SİLME ONAY MODALI */}
             <AnimatePresence>
                 {deleteModalOpen && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-sm">
@@ -126,7 +176,7 @@ export default function PeopleList() {
                 )}
             </AnimatePresence>
 
-            {/* --- DÜZENLEME MODALI --- */}
+            {/* DÜZENLEME MODALI */}
             <AnimatePresence>
                 {editModalOpen && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-sm">

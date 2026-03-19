@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const { Pool } = require('pg');
 require('dotenv').config();
 
 const app = express();
@@ -9,15 +10,130 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Temel test rotası
-app.get('/api/health', (req, res) => {
-    res.json({
-        status: 'OK',
-        message: 'Backend API çalışıyor!',
-        timestamp: new Date().toISOString()
-    });
+// PostgreSQL Bağlantı Havuzu (Pool)
+// Docker Compose üzerinden çalışırken DB_HOST 'db' olacak, yerel testlerde 'localhost' olabilir.
+const pool = new Pool({
+    user: process.env.DB_USER || 'postgres',
+    host: process.env.DB_HOST || 'localhost',
+    database: process.env.DB_NAME || 'healthai_dev',
+    password: process.env.DB_PASSWORD || 'yourpassword',
+    port: process.env.DB_PORT || 5432,
+});
+
+// Veritabanı bağlantı testi
+pool.connect((err, client, release) => {
+    if (err) {
+        console.error('Veritabanına bağlanılamadı:', err.stack);
+    } else {
+        console.log('PostgreSQL veritabanına başarıyla bağlanıldı!');
+        release();
+    }
+});
+
+// ==========================================
+// API ENDPOINT'LERİ (CRUD İŞLEMLERİ)
+// ==========================================
+
+// 1. GET /api/people - Tüm kişileri getir
+app.get('/api/people', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM people ORDER BY id ASC');
+        res.status(200).json(result.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'SERVER_ERROR', message: 'Sunucu hatası oluştu.' });
+    }
+});
+
+// 2. GET /api/people/:id - Tek bir kişi getir
+app.get('/api/people/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await pool.query('SELECT * FROM people WHERE id = $1', [id]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'NOT_FOUND', message: 'Kişi bulunamadı.' });
+        }
+        res.status(200).json(result.rows[0]);
+    } catch (err) {
+        res.status(500).json({ error: 'SERVER_ERROR' });
+    }
+});
+
+// 3. POST /api/people - Yeni kişi ekle
+app.post('/api/people', async (req, res) => {
+    try {
+        const { fullName, email } = req.body;
+
+        // Backend Validasyonu (Ödev gereksinimi)
+        if (!fullName || !email) {
+            return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'Ad Soyad ve E-posta zorunludur.' });
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'Geçersiz e-posta formatı.' });
+        }
+
+        const newPerson = await pool.query(
+            'INSERT INTO people (full_name, email) VALUES ($1, $2) RETURNING *',
+            [fullName, email]
+        );
+
+        res.status(201).json(newPerson.rows[0]);
+    } catch (err) {
+        // E-posta benzersizlik (UNIQUE) hatası yakalama (PostgreSQL hata kodu: 23505)
+        if (err.code === '23505') {
+            return res.status(409).json({ error: 'EMAIL_ALREADY_EXISTS', message: 'Bu e-posta adresi zaten kayıtlı.' });
+        }
+        res.status(500).json({ error: 'SERVER_ERROR' });
+    }
+});
+
+// 4. PUT /api/people/:id - Kişiyi güncelle
+app.put('/api/people/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { fullName, email } = req.body;
+
+        if (!fullName || !email) {
+            return res.status(400).json({ error: 'VALIDATION_ERROR' });
+        }
+
+        const updatePerson = await pool.query(
+            'UPDATE people SET full_name = $1, email = $2 WHERE id = $3 RETURNING *',
+            [fullName, email, id]
+        );
+
+        if (updatePerson.rows.length === 0) {
+            return res.status(404).json({ error: 'NOT_FOUND' });
+        }
+
+        res.status(200).json(updatePerson.rows[0]);
+    } catch (err) {
+        if (err.code === '23505') {
+            return res.status(409).json({ error: 'EMAIL_ALREADY_EXISTS' });
+        }
+        res.status(500).json({ error: 'SERVER_ERROR' });
+    }
+});
+
+// 5. DELETE /api/people/:id - Kişiyi sil
+app.delete('/api/people/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletePerson = await pool.query('DELETE FROM people WHERE id = $1 RETURNING *', [id]);
+
+        if (deletePerson.rows.length === 0) {
+            return res.status(404).json({ error: 'NOT_FOUND' });
+        }
+
+        res.status(200).json({ message: 'Kişi başarıyla silindi.' });
+    } catch (err) {
+        res.status(500).json({ error: 'SERVER_ERROR' });
+    }
 });
 
 app.listen(PORT, () => {
-    console.log(`Sunucu ${PORT} portunda çalışıyor...`);
+    console.log(`Backend sunucusu ${PORT} portunda çalışıyor...`);
 });

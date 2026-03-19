@@ -2,23 +2,43 @@ import { useState } from 'react';
 import { UserPlus, CheckCircle2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function RegistrationForm() {
+export default function RegistrationForm({ addNotification }) {
     const [formData, setFormData] = useState({ fullName: '', email: '' });
     const [status, setStatus] = useState({ type: '', message: '' });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // Validasyon
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData.email)) {
             setStatus({ type: 'error', message: 'Please enter a valid email address format.' });
             return;
         }
 
-        console.log("Payload to send:", formData);
-        setStatus({ type: 'success', message: 'Personnel successfully added to the system!' });
+        try {
+            const response = await fetch('http://localhost:5000/api/people', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+            const data = await response.json();
 
-        setFormData({ fullName: '', email: '' });
+            if (response.ok) {
+                setStatus({ type: 'success', message: 'Personnel successfully added to the system!' });
+
+                // Sisteme bildirim gönder
+                if (addNotification) addNotification(`${formData.fullName} has been added to the system.`);
+
+                setFormData({ fullName: '', email: '' });
+            } else {
+                setStatus({ type: 'error', message: data.message || 'An error occurred.' });
+            }
+        } catch (error) {
+            console.error("Server error:", error);
+            setStatus({ type: 'error', message: 'Cannot connect to the server.' });
+        }
+
         setTimeout(() => setStatus({ type: '', message: '' }), 4000);
     };
 
