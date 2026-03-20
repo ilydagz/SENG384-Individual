@@ -10,7 +10,7 @@ export default function PeopleList({ addNotification, searchQuery = "" }) {
 
     const fetchPeople = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/people');
+            const response = await fetch('http://localhost:5001/api/people');
             const data = await response.json();
 
             const formattedData = data.map(person => ({
@@ -43,7 +43,7 @@ export default function PeopleList({ addNotification, searchQuery = "" }) {
 
     const confirmDelete = async () => {
         try {
-            const response = await fetch(`http://localhost:5000/api/people/${selectedPerson.id}`, {
+            const response = await fetch(`http://localhost:5001/api/people/${selectedPerson.id}`, {
                 method: 'DELETE',
             });
 
@@ -66,7 +66,7 @@ export default function PeopleList({ addNotification, searchQuery = "" }) {
     const handleEditSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`http://localhost:5000/api/people/${selectedPerson.id}`, {
+            const response = await fetch(`http://localhost:5001/api/people/${selectedPerson.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

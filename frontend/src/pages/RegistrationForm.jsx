@@ -17,7 +17,7 @@ export default function RegistrationForm({ addNotification }) {
         }
 
         try {
-            const response = await fetch('http://localhost:5000/api/people', {
+            const response = await fetch('http://localhost:5001/api/people', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)

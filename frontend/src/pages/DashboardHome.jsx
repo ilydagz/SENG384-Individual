@@ -8,7 +8,7 @@ export default function DashboardHome() {
 
     // Veritabanından gerçek kişi sayısını çek
     useEffect(() => {
-        fetch('http://localhost:5000/api/people')
+        fetch('http://localhost:5001/api/people')
             .then(res => res.json())
             .then(data => setTotalPeople(data.length))
             .catch(err => console.error("Data fetch error", err));

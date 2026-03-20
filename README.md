@@ -38,7 +38,7 @@ Beyond the core CRUD operations, this project includes several advanced UI/UX fe
 3. Access the application:
    ```bash
    - Frontend: http://localhost:5173
-   - Backend API: http://localhost:5000
+   - Backend API: http://localhost:5001
    - Database: http://localhost:5432        
    ```
 4. Stop the application:
@@ -47,7 +47,7 @@ Beyond the core CRUD operations, this project includes several advanced UI/UX fe
    ```   
 ## API Endpoint Documentation
 
-Base URL: `http://localhost:5000/api`
+Base URL: `http://localhost:5001/api`
 
 | HTTP Method | Endpoint | CRUD Operation | Description | HTTP Status Codes |
 | :--- | :--- | :--- | :--- | :--- |
