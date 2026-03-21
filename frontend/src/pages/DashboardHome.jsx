@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 export default function DashboardHome() {
     const [totalPeople, setTotalPeople] = useState(0);
 
-    // Veritabanından gerçek kişi sayısını çek
+    // Fetch real person count from database
     useEffect(() => {
         fetch('http://localhost:5001/api/people')
             .then(res => res.json())
@@ -35,7 +35,7 @@ export default function DashboardHome() {
     return (
         <motion.div variants={waterContainer} initial="hidden" animate="show" className="max-w-6xl mx-auto">
 
-            {/* Akışkan Su Banner'ı */}
+            {/* Fluid Water Banner */}
             <motion.div variants={waterDrop} className="mb-10 relative overflow-hidden rounded-[2rem] shadow-xl shadow-blue-900/5 border border-white/60">
                 <motion.div
                     animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
@@ -62,7 +62,7 @@ export default function DashboardHome() {
                 </div>
             </motion.div>
 
-            {/* İstatistik Damlaları (Kartlar) */}
+            {/* Statistics Drops (Cards) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                 {[
                     { title: "Total Personnel", value: totalPeople, icon: Users, color: "from-blue-500 to-blue-400" },

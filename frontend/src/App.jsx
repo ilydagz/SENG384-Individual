@@ -85,7 +85,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
   );
 };
 
-// Yönlendirme (useNavigate) kancasını kullanabilmek için ana içeriği ayrı bir bileşene aldık
+// Wrapped the main content in a separate component to be able to use the navigate hook
 function AppContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -94,13 +94,13 @@ function AppContent() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 1. BİLDİRİMLERİ LOCAL STORAGE'DAN ÇEK VE KAYDET
+  // 1. FETCH AND SAVE NOTIFICATIONS FROM LOCAL STORAGE
   const [notifications, setNotifications] = useState(() => {
     const savedNotifs = localStorage.getItem('appNotifications');
     return savedNotifs ? JSON.parse(savedNotifs) : [];
   });
 
-  // Bildirimler her değiştiğinde Local Storage'a kaydet
+  // Save to Local Storage whenever notifications change
   useEffect(() => {
     localStorage.setItem('appNotifications', JSON.stringify(notifications));
   }, [notifications]);
@@ -110,19 +110,19 @@ function AppContent() {
     setNotifications(prev => [newNotif, ...prev]);
   };
 
-  // 2. SAYFA YENİLENDİĞİNDE KAYITLI AYARLARI (TEMA/FONT) YÜKLE
+  // 2. LOAD SAVED SETTINGS (THEME/FONT) WHEN PAGE REFRESHES
   useEffect(() => {
     const savedFontSize = localStorage.getItem('appFontSize') || 'Medium (Default)';
     const savedTheme = localStorage.getItem('appTheme') || 'System Sync';
     const savedReduceMotion = JSON.parse(localStorage.getItem('appReduceMotion') || 'false');
     const savedHighContrast = JSON.parse(localStorage.getItem('appHighContrast') || 'false');
 
-    // Fontu Uygula
+    // Apply Font
     if (savedFontSize === 'Small') document.documentElement.style.fontSize = '14px';
     if (savedFontSize === 'Medium (Default)') document.documentElement.style.fontSize = '16px';
     if (savedFontSize === 'Large') document.documentElement.style.fontSize = '18px';
 
-    // CSS ve Temayı Uygula
+    // Apply CSS and Theme
     let styleTag = document.getElementById('dynamic-theme-styles');
     if (!styleTag) {
       styleTag = document.createElement('style');

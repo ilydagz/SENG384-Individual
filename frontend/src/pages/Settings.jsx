@@ -5,7 +5,7 @@ import { Settings as SettingsIcon, Type, Monitor, Moon, Sun, Accessibility, Eye,
 export default function Settings({ addNotification }) {
     const [activeTab, setActiveTab] = useState('Typography');
 
-    // AYARLARI LOCAL STORAGE'DAN OKUYARAK BAŞLAT
+    // INITIALIZE SETTINGS BY READING FROM LOCAL STORAGE
     const [fontSize, setFontSize] = useState(() => localStorage.getItem('appFontSize') || 'Medium (Default)');
     const [theme, setTheme] = useState(() => localStorage.getItem('appTheme') || 'System Sync');
     const [reduceMotion, setReduceMotion] = useState(() => JSON.parse(localStorage.getItem('appReduceMotion') || 'false'));
@@ -17,12 +17,12 @@ export default function Settings({ addNotification }) {
     };
 
     const handleApply = () => {
-        // 1. Yazı Boyutu Uygulaması
+        // 1. Apply Font Size
         if (fontSize === 'Small') document.documentElement.style.fontSize = '14px';
         if (fontSize === 'Medium (Default)') document.documentElement.style.fontSize = '16px';
         if (fontSize === 'Large') document.documentElement.style.fontSize = '18px';
 
-        // 2. Tema Uygulaması
+        // 2. Apply Theme
         let styleTag = document.getElementById('dynamic-theme-styles');
         if (!styleTag) {
             styleTag = document.createElement('style');
@@ -45,19 +45,19 @@ export default function Settings({ addNotification }) {
 
         styleTag.innerHTML = cssRules;
 
-        // 3. YENİ: YAPILAN DEĞİŞİKLİKLERİ LOCAL STORAGE'A KAYDET
+        // 3. NEW: SAVE CHANGES TO LOCAL STORAGE
         localStorage.setItem('appFontSize', fontSize);
         localStorage.setItem('appTheme', theme);
         localStorage.setItem('appReduceMotion', JSON.stringify(reduceMotion));
         localStorage.setItem('appHighContrast', JSON.stringify(highContrast));
 
-        // 4. Başarı Bildirimi
+        // 4. Success Notification
         if (addNotification) {
             addNotification(`System configuration successfully applied.`);
         }
     };
 
-    // Sağ tarafın içeriğini dinamik olarak render eden fonksiyon
+    // Function to dynamically render the content on the right side
     const renderTabContent = () => {
         switch (activeTab) {
             case 'Typography':
@@ -153,7 +153,7 @@ export default function Settings({ addNotification }) {
     return (
         <motion.div initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.1 } } }} className="max-w-4xl mx-auto">
 
-            {/* Üst Başlık */}
+            {/* Top Header */}
             <div className="flex items-center gap-4 mb-8">
                 <div className="bg-gradient-to-br from-blue-100 to-sky-50 p-3.5 rounded-2xl shadow-inner border border-white">
                     <SettingsIcon className="text-blue-500 w-6 h-6" />
@@ -165,7 +165,7 @@ export default function Settings({ addNotification }) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Sol Menü (Tabs) */}
+                {/* Left Menu (Tabs) */}
                 <motion.div variants={waterDrop} className="md:col-span-1 space-y-2">
                     {['Typography', 'Appearance', 'Accessibility'].map((item, i) => (
                         <button
@@ -178,15 +178,15 @@ export default function Settings({ addNotification }) {
                     ))}
                 </motion.div>
 
-                {/* Sağ İçerik Alanı */}
+                {/* Right Content Area */}
                 <motion.div variants={waterDrop} className="md:col-span-2 flex flex-col justify-between bg-white/60 backdrop-blur-2xl rounded-[2rem] p-8 shadow-lg shadow-sky-900/5 border border-white min-h-[350px]">
 
-                    {/* Dinamik İçerik (Seçilen sekmeye göre değişir) */}
+                    {/* Dynamic Content (changes based on selected tab) */}
                     <AnimatePresence mode="wait">
                         {renderTabContent()}
                     </AnimatePresence>
 
-                    {/* Ortak Apply Butonu */}
+                    {/* Common Apply Button */}
                     <div className="pt-8 mt-auto border-t border-slate-100/60 flex items-center justify-between">
                         <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Unsaved Changes</span>
                         <button

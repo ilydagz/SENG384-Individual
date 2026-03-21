@@ -30,7 +30,7 @@ export default function PeopleList({ addNotification, searchQuery = "" }) {
         fetchPeople();
     }, []);
 
-    // Arama çubuğu (Search) filtresi
+    // Search bar filter
     const filteredPeople = people.filter(person =>
         person.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         person.email.toLowerCase().includes(searchQuery.toLowerCase())
@@ -148,7 +148,7 @@ export default function PeopleList({ addNotification, searchQuery = "" }) {
                 </div>
             </motion.div>
 
-            {/* SİLME ONAY MODALI */}
+            {/* DELETE CONFIRMATION MODAL */}
             <AnimatePresence>
                 {deleteModalOpen && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-sm">
@@ -176,7 +176,7 @@ export default function PeopleList({ addNotification, searchQuery = "" }) {
                 )}
             </AnimatePresence>
 
-            {/* DÜZENLEME MODALI */}
+            {/* EDITING MODAL */}
             <AnimatePresence>
                 {editModalOpen && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-sm">

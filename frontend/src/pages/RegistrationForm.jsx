@@ -9,7 +9,7 @@ export default function RegistrationForm({ addNotification }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Validasyon
+        // Validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData.email)) {
             setStatus({ type: 'error', message: 'Please enter a valid email address format.' });
@@ -27,7 +27,7 @@ export default function RegistrationForm({ addNotification }) {
             if (response.ok) {
                 setStatus({ type: 'success', message: 'Personnel successfully added to the system!' });
 
-                // Sisteme bildirim gönder
+                // Send notification to the system
                 if (addNotification) addNotification(`${formData.fullName} has been added to the system.`);
 
                 setFormData({ fullName: '', email: '' });

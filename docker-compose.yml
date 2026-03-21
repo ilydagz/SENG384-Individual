@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # --- Veritabanı (PostgreSQL) ---
+  # --- Database (PostgreSQL) ---
   db:
     image: postgres:16-alpine
     environment:
@@ -19,7 +19,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # --- Arka Plan (Node.js API) ---
+  # --- Backend (Node.js API) ---
   backend:
     build: ./backend
     ports:
@@ -38,7 +38,7 @@ services:
       - ./backend:/app
       - /app/node_modules
 
-  # --- Ön Yüz (React UI) ---
+  # --- Frontend (React UI) ---
   frontend:
     build: ./frontend
     ports:

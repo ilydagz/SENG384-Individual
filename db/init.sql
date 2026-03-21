@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS people (
     email VARCHAR(255) NOT NULL UNIQUE
 );
 
--- Test edebilmemiz için başlangıçta birkaç sahte veri (Seed Data) ekleyelim
+-- Add some seed data for testing
 INSERT INTO people (full_name, email) VALUES 
 ('John Doe', 'john@example.com'),
 ('Jane Smith', 'jane@example.com')

@@ -6,12 +6,12 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-// Middleware'ler
+// Middlewares
 app.use(cors());
 app.use(express.json());
 
-// PostgreSQL Bağlantı Havuzu (Pool)
-// Docker Compose üzerinden çalışırken DB_HOST 'db' olacak, yerel testlerde 'localhost' olabilir.
+// PostgreSQL Connection Pool
+// DB_HOST will be 'db' when running via Docker Compose, it can be 'localhost' for local tests.
 const pool = new Pool({
     user: process.env.DB_USER || 'postgres',
     host: process.env.DB_HOST || 'localhost',
@@ -20,7 +20,7 @@ const pool = new Pool({
     port: process.env.DB_PORT || 5432,
 });
 
-// Veritabanı bağlantı testi
+// Database connection test
 pool.connect((err, client, release) => {
     if (err) {
         console.error('Veritabanına bağlanılamadı:', err.stack);
@@ -31,10 +31,10 @@ pool.connect((err, client, release) => {
 });
 
 // ==========================================
-// API ENDPOINT'LERİ (CRUD İŞLEMLERİ)
+// API ENDPOINTS (CRUD OPERATIONS)
 // ==========================================
 
-// 1. GET /api/people - Tüm kişileri getir
+// 1. GET /api/people - Get all people
 app.get('/api/people', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM people ORDER BY id ASC');
@@ -45,7 +45,7 @@ app.get('/api/people', async (req, res) => {
     }
 });
 
-// 2. GET /api/people/:id - Tek bir kişi getir
+// 2. GET /api/people/:id - Get a single person
 app.get('/api/people/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -60,12 +60,12 @@ app.get('/api/people/:id', async (req, res) => {
     }
 });
 
-// 3. POST /api/people - Yeni kişi ekle
+// 3. POST /api/people - Add new person
 app.post('/api/people', async (req, res) => {
     try {
         const { fullName, email } = req.body;
 
-        // Backend Validasyonu (Ödev gereksinimi)
+        // Backend Validation (Assignment requirement)
         if (!fullName || !email) {
             return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'Ad Soyad ve E-posta zorunludur.' });
         }
@@ -82,7 +82,7 @@ app.post('/api/people', async (req, res) => {
 
         res.status(201).json(newPerson.rows[0]);
     } catch (err) {
-        // E-posta benzersizlik (UNIQUE) hatası yakalama (PostgreSQL hata kodu: 23505)
+        // Catch email uniqueness (UNIQUE) error (PostgreSQL error code: 23505)
         if (err.code === '23505') {
             return res.status(409).json({ error: 'EMAIL_ALREADY_EXISTS', message: 'Bu e-posta adresi zaten kayıtlı.' });
         }
@@ -90,7 +90,7 @@ app.post('/api/people', async (req, res) => {
     }
 });
 
-// 4. PUT /api/people/:id - Kişiyi güncelle
+// 4. PUT /api/people/:id - Update person
 app.put('/api/people/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -118,7 +118,7 @@ app.put('/api/people/:id', async (req, res) => {
     }
 });
 
-// 5. DELETE /api/people/:id - Kişiyi sil
+// 5. DELETE /api/people/:id - Delete person
 app.delete('/api/people/:id', async (req, res) => {
     try {
         const { id } = req.params;
